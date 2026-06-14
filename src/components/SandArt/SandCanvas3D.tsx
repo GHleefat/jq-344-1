@@ -7,8 +7,12 @@ import { LightSetup } from "./LightSetup";
 import { useBrushInteraction } from "@/hooks/useBrushInteraction";
 import * as THREE from "three";
 
-function BrushInteractionHandler() {
-  useBrushInteraction({ planeSize: 10 });
+function BrushInteractionHandler({
+  controlsRef,
+}: {
+  controlsRef: React.RefObject<any>;
+}) {
+  useBrushInteraction({ planeSize: 10, controlsRef });
   return null;
 }
 
@@ -18,6 +22,7 @@ interface SandCanvas3DProps {
 
 export function SandCanvas3D({ className }: SandCanvas3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<any>(null);
 
   return (
     <div ref={containerRef} className={className}>
@@ -54,9 +59,10 @@ export function SandCanvas3D({ className }: SandCanvas3DProps) {
             <meshStandardMaterial color="#2d1f14" roughness={0.9} />
           </mesh>
 
-          <BrushInteractionHandler />
+          <BrushInteractionHandler controlsRef={controlsRef} />
 
           <OrbitControls
+            ref={controlsRef}
             enablePan={false}
             minDistance={5}
             maxDistance={20}
@@ -64,6 +70,11 @@ export function SandCanvas3D({ className }: SandCanvas3DProps) {
             maxPolarAngle={Math.PI / 2.1}
             enableDamping
             dampingFactor={0.05}
+            mouseButtons={{
+              LEFT: -1 as any,
+              MIDDLE: THREE.MOUSE.DOLLY,
+              RIGHT: THREE.MOUSE.ROTATE,
+            }}
           />
 
           <Environment preset="studio" />

@@ -97,11 +97,15 @@ export function ViewControls({ className }: ViewControlsProps) {
       <div className="flex flex-col gap-2 text-white/50 text-xs">
         <div className="flex items-center gap-2">
           <RotateCcw size={14} />
-          <span>左键：作画</span>
+          <span>左键拖动：作画</span>
         </div>
         <div className="flex items-center gap-2">
           <RotateCcw size={14} />
-          <span>右键拖拽：旋转视角</span>
+          <span>右键拖动：旋转视角</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <RotateCcw size={14} />
+          <span>空格+左键：旋转视角</span>
         </div>
         <div className="flex items-center gap-2">
           <RotateCcw size={14} />

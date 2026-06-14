@@ -6,18 +6,60 @@ import { applyBrush, lerpPoints } from "@/utils/heightMapUtils";
 
 interface UseBrushInteractionOptions {
   planeSize?: number;
+  controlsRef?: React.RefObject<any>;
 }
 
 export function useBrushInteraction({
   planeSize = 10,
+  controlsRef,
 }: UseBrushInteractionOptions = {}) {
   const { camera, gl } = useThree();
   const raycaster = useRef(new THREE.Raycaster());
   const mouse = useRef(new THREE.Vector2());
   const isDrawing = useRef(false);
   const lastPosition = useRef<{ x: number; y: number } | null>(null);
+  const spaceHeld = useRef(false);
 
   const { brushConfig, updateHeightMap, pushHistory } = useSandStore();
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space" && !e.repeat) {
+        e.preventDefault();
+        spaceHeld.current = true;
+        if (isDrawing.current) {
+          isDrawing.current = false;
+          lastPosition.current = null;
+        }
+        if (controlsRef?.current) {
+          controlsRef.current.enabled = true;
+          controlsRef.current.mouseButtons = {
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.ROTATE,
+          };
+        }
+      }
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        spaceHeld.current = false;
+        if (controlsRef?.current) {
+          controlsRef.current.mouseButtons = {
+            LEFT: -1,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.ROTATE,
+          };
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, [controlsRef]);
 
   const getUVFromEvent = useCallback(
     (event: PointerEvent): { x: number; y: number } | null => {
@@ -52,6 +94,12 @@ export function useBrushInteraction({
   const handlePointerDown = useCallback(
     (event: PointerEvent) => {
       if (event.button !== 0) return;
+      if (spaceHeld.current) return;
+
+      if (controlsRef?.current) {
+        controlsRef.current.enabled = false;
+      }
+
       const pos = getUVFromEvent(event);
       if (!pos) return;
 
@@ -70,12 +118,21 @@ export function useBrushInteraction({
         );
       });
     },
-    [brushConfig, getUVFromEvent, updateHeightMap, pushHistory],
+    [brushConfig, getUVFromEvent, updateHeightMap, pushHistory, controlsRef],
   );
 
   const handlePointerMove = useCallback(
     (event: PointerEvent) => {
       if (!isDrawing.current) return;
+
+      if (spaceHeld.current) {
+        isDrawing.current = false;
+        lastPosition.current = null;
+        if (controlsRef?.current) {
+          controlsRef.current.enabled = true;
+        }
+        return;
+      }
 
       const pos = getUVFromEvent(event);
       if (!pos || !lastPosition.current) return;
@@ -97,13 +154,23 @@ export function useBrushInteraction({
 
       lastPosition.current = pos;
     },
-    [brushConfig, getUVFromEvent, updateHeightMap],
+    [brushConfig, getUVFromEvent, updateHeightMap, controlsRef],
   );
 
-  const handlePointerUp = useCallback(() => {
-    isDrawing.current = false;
-    lastPosition.current = null;
-  }, []);
+  const handlePointerUp = useCallback(
+    (event: PointerEvent) => {
+      if (isDrawing.current && event.button === 0) {
+        // drawing finished
+      }
+      isDrawing.current = false;
+      lastPosition.current = null;
+
+      if (controlsRef?.current) {
+        controlsRef.current.enabled = true;
+      }
+    },
+    [controlsRef],
+  );
 
   useEffect(() => {
     const canvas = gl.domElement;
