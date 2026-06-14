@@ -36,6 +36,9 @@ export function ActionPanel({ className, containerRef }: ActionPanelProps) {
         "border border-white/10 shadow-2xl",
         className,
       )}
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
+      onPointerMove={(e) => e.stopPropagation()}
     >
       <div className="flex items-center gap-2">
         <button
@@ -93,6 +96,9 @@ export function ViewControls({ className }: ViewControlsProps) {
         "border border-white/10 shadow-2xl",
         className,
       )}
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
+      onPointerMove={(e) => e.stopPropagation()}
     >
       <div className="flex flex-col gap-2 text-white/50 text-xs">
         <div className="flex items-center gap-2">

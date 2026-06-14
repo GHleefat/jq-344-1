@@ -40,6 +40,9 @@ export function Toolbar({ className }: ToolbarProps) {
         "border border-white/10 shadow-2xl",
         className,
       )}
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
+      onPointerMove={(e) => e.stopPropagation()}
     >
       <div className="flex items-center gap-2">
         {tools.map((tool) => {

@@ -82,7 +82,7 @@ export function useBrushInteraction({
 
       const halfSize = planeSize / 2;
       const uvX = (intersectPoint.x + halfSize) / planeSize;
-      const uvY = (intersectPoint.z + halfSize) / planeSize;
+      const uvY = 1 - (intersectPoint.z + halfSize) / planeSize;
 
       if (uvX < 0 || uvX > 1 || uvY < 0 || uvY > 1) return null;
 

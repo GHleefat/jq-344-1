@@ -60,8 +60,12 @@ export function SandMesh({ size = 10, segments = 256 }: SandMeshProps) {
 
   useEffect(() => {
     if (!heightMapTextureRef.current) return;
+    const tex = heightMapTextureRef.current;
+    (tex.image as any).data = heightMap.data;
+    (tex.image as any).width = heightMap.width;
+    (tex.image as any).height = heightMap.height;
     heightMapTextureRef.current.needsUpdate = true;
-  }, [heightMapVersion]);
+  }, [heightMapVersion, heightMap]);
 
   useFrame((state) => {
     if (materialRef.current) {
